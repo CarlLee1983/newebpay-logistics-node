@@ -1,6 +1,6 @@
 {
     "name": "@carllee1983/newebpay-logistics",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "藍新金流物流 SDK - NewebPay Logistics SDK for Node.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -12,6 +12,7 @@
         "build": "tsc",
         "test": "vitest run",
         "test:watch": "vitest",
+        "prepublishOnly": "npm run build",
         "lint": "eslint src/**/*.ts",
         "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
     },

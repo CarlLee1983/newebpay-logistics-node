@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { LgsType, ShipType, TradeType } from "../constants.js";
 
+/**
+ * Service for validating request data using Zod schemas.
+ */
 export class ValidatorService {
+  /**
+   * Zod schema for MapRequest.
+   */
   public static readonly mapRequestSchema = z.object({
     MerchantOrderNo: z.string().min(1),
     LgsType: z.nativeEnum(LgsType),
@@ -15,6 +21,9 @@ export class ValidatorService {
     Device: z.number().optional(),
   });
 
+  /**
+   * Zod schema for CreateOrderRequest.
+   */
   public static readonly createOrderRequestSchema = z.object({
     MerchantOrderNo: z.string().min(1),
     TradeType: z.nativeEnum(TradeType),
@@ -33,18 +42,33 @@ export class ValidatorService {
     LogisticsSubType: z.string().optional(),
   });
 
+  /**
+   * Zod schema for QueryOrderRequest.
+   */
   public static readonly queryOrderRequestSchema = z.object({
     MerchantOrderNo: z.string().min(1),
     TimeStamp: z.string().or(z.number()),
     LogisticsID: z.string().optional(),
   });
 
+  /**
+   * Zod schema for PrintOrderRequest.
+   */
   public static readonly printOrderRequestSchema = z.object({
     MerchantOrderNo: z.string().min(1),
     TimeStamp: z.string().or(z.number()),
     LogisticsID: z.string().optional(),
   });
 
+  /**
+   * Validates data against a Zod schema.
+   *
+   * @template T - The type of the data.
+   * @param schema - The Zod schema.
+   * @param data - The data to validate.
+   * @returns The validated data.
+   * @throws {ZodError} If validation fails.
+   */
   public static validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
     return schema.parse(data);
   }

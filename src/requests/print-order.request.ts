@@ -7,9 +7,20 @@ type PrintOrderRequestContent = z.infer<
   typeof ValidatorService.printOrderRequestSchema
 >;
 
+/**
+ * Request for printing a logistics order.
+ */
 export class PrintOrderRequest extends BaseRequest<PrintOrderRequestContent> {
   protected requestPath = "/print";
 
+  /**
+   * Creates an instance of PrintOrderRequest.
+   *
+   * @param merchantId - The Merchant ID.
+   * @param hashKey - The Hash Key.
+   * @param hashIV - The Hash IV.
+   * @param encryptionService - Optional custom EncryptionService.
+   */
   constructor(
     merchantId: string,
     hashKey: string,
@@ -26,16 +37,34 @@ export class PrintOrderRequest extends BaseRequest<PrintOrderRequestContent> {
     );
   }
 
+  /**
+   * Sets the Merchant Trade Number.
+   *
+   * @param tradeNo - Unique trade number for the merchant.
+   * @returns The PrintOrderRequest instance for chaining.
+   */
   public setMerchantTradeNo(tradeNo: string): this {
     this.content.MerchantOrderNo = tradeNo;
     return this;
   }
 
+  /**
+   * Sets the Timestamp.
+   *
+   * @param timeStamp - The timestamp of the request.
+   * @returns The PrintOrderRequest instance for chaining.
+   */
   public setTimeStamp(timeStamp: string | number): this {
     this.content.TimeStamp = timeStamp;
     return this;
   }
 
+  /**
+   * Sets the Logistics ID.
+   *
+   * @param id - The logistics ID (shipping code).
+   * @returns The PrintOrderRequest instance for chaining.
+   */
   public setLogisticsID(id: string): this {
     this.content.LogisticsID = id;
     return this;

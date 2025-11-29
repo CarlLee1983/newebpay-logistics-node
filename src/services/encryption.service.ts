@@ -1,5 +1,8 @@
 import { createCipheriv, createHash } from "node:crypto";
 
+/**
+ * Service for handling encryption and hashing required by NewebPay.
+ */
 export class EncryptionService {
   /**
    * Encrypt data using AES-256-CBC.

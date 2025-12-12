@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NewebPayError, NetworkError, ApiError } from "../src/errors.js";
+import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { NewebPayLogistics } from "../src/client.js";
-import { MapRequest } from "../src/requests/map.request.js";
+import { Environment } from "../src/constants.js";
+import { ApiError, NetworkError, NewebPayError } from "../src/errors.js";
 import { CreateOrderRequest } from "../src/requests/create-order.request.js";
-import { QueryOrderRequest } from "../src/requests/query-order.request.js";
+import { MapRequest } from "../src/requests/map.request.js";
 import { PrintOrderRequest } from "../src/requests/print-order.request.js";
+import { QueryOrderRequest } from "../src/requests/query-order.request.js";
 import { BaseResponse } from "../src/responses/base.response.js";
 import { CreateOrderResponse } from "../src/responses/create-order.response.js";
-import { QueryOrderResponse } from "../src/responses/query-order.response.js";
 import { PrintOrderResponse } from "../src/responses/print-order.response.js";
-import { Environment } from "../src/constants.js";
+import { QueryOrderResponse } from "../src/responses/query-order.response.js";
 
 describe("NewebPayLogistics", () => {
     const merchantId = "MERCHANT_ID";
@@ -62,7 +62,7 @@ describe("NewebPayLogistics", () => {
 
     describe("send", () => {
         const mockHttpClient = {
-            post: vi.fn(),
+            post: mock(() => Promise.resolve({ ok: true, status: 200, text: async () => "" })),
         };
 
         beforeEach(() => {
@@ -73,8 +73,7 @@ describe("NewebPayLogistics", () => {
             const mockResponse = {
                 ok: true,
                 status: 200,
-                text: async () =>
-                    JSON.stringify({ Status: "SUCCESS", Message: "Test" }),
+                text: async () => JSON.stringify({ Status: "SUCCESS", Message: "Test" }),
             };
             mockHttpClient.post.mockResolvedValue(mockResponse);
 
@@ -86,7 +85,7 @@ describe("NewebPayLogistics", () => {
             );
 
             const request = clientWithMock.map();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -122,7 +121,7 @@ describe("NewebPayLogistics", () => {
             );
 
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -157,7 +156,7 @@ describe("NewebPayLogistics", () => {
             );
 
             const request = clientWithMock.queryOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -188,7 +187,7 @@ describe("NewebPayLogistics", () => {
             );
 
             const request = clientWithMock.printOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -200,15 +199,11 @@ describe("NewebPayLogistics", () => {
 
             const response = await clientWithMock.send(request);
             expect(response).toBeInstanceOf(PrintOrderResponse);
-            expect((response as PrintOrderResponse).getHtmlContent()).toBe(
-                htmlContent
-            );
+            expect((response as PrintOrderResponse).getHtmlContent()).toBe(htmlContent);
         });
 
         it("should throw NetworkError on fetch failure", async () => {
-            mockHttpClient.post.mockRejectedValue(
-                new Error("Network failure")
-            );
+            mockHttpClient.post.mockRejectedValue(new Error("Network failure"));
 
             const clientWithMock = new NewebPayLogistics(
                 merchantId,
@@ -217,7 +212,7 @@ describe("NewebPayLogistics", () => {
                 mockHttpClient
             );
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -227,9 +222,7 @@ describe("NewebPayLogistics", () => {
                 RespondType_: "JSON",
             });
 
-            await expect(clientWithMock.send(request)).rejects.toThrow(
-                NetworkError
-            );
+            await expect(clientWithMock.send(request)).rejects.toThrow(NetworkError);
         });
 
         it("should throw NetworkError when response.text() fails", async () => {
@@ -249,7 +242,7 @@ describe("NewebPayLogistics", () => {
                 mockHttpClient
             );
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -259,9 +252,7 @@ describe("NewebPayLogistics", () => {
                 RespondType_: "JSON",
             });
 
-            await expect(clientWithMock.send(request)).rejects.toThrow(
-                NetworkError
-            );
+            await expect(clientWithMock.send(request)).rejects.toThrow(NetworkError);
         });
 
         it("should throw ApiError on non-ok response", async () => {
@@ -278,7 +269,7 @@ describe("NewebPayLogistics", () => {
                 mockHttpClient
             );
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -288,9 +279,7 @@ describe("NewebPayLogistics", () => {
                 RespondType_: "JSON",
             });
 
-            await expect(clientWithMock.send(request)).rejects.toThrow(
-                ApiError
-            );
+            await expect(clientWithMock.send(request)).rejects.toThrow(ApiError);
         });
 
         it("should throw ApiError when JSON parsing fails for non-PrintOrder request", async () => {
@@ -308,7 +297,7 @@ describe("NewebPayLogistics", () => {
                 mockHttpClient
             );
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -318,9 +307,7 @@ describe("NewebPayLogistics", () => {
                 RespondType_: "JSON",
             });
 
-            await expect(clientWithMock.send(request)).rejects.toThrow(
-                ApiError
-            );
+            await expect(clientWithMock.send(request)).rejects.toThrow(ApiError);
         });
 
         it("should handle parseError that is not an Error instance", async () => {
@@ -338,7 +325,7 @@ describe("NewebPayLogistics", () => {
                 mockHttpClient
             );
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST",
                 HashData_: "TEST",
@@ -362,8 +349,7 @@ describe("NewebPayLogistics", () => {
             const mockResponse = {
                 ok: true,
                 status: 200,
-                text: async () =>
-                    JSON.stringify({ Status: "SUCCESS", Message: "Test" }),
+                text: async () => JSON.stringify({ Status: "SUCCESS", Message: "Test" }),
             };
             mockHttpClient.post.mockResolvedValue(mockResponse);
 
@@ -375,7 +361,7 @@ describe("NewebPayLogistics", () => {
             );
 
             const request = clientWithMock.createOrder();
-            vi.spyOn(request, "getPayload").mockReturnValue({
+            spyOn(request, "getPayload").mockReturnValue({
                 MerchantID_: "TEST",
                 PostData_: "TEST_DATA",
                 HashData_: "HASH_DATA",

@@ -1,0 +1,5 @@
+{
+  "pre-commit": "bun run check",
+  "commit-msg": "bun scripts/validate-commit-msg.ts \"$1\""
+}
+

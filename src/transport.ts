@@ -30,15 +30,17 @@ export class FetchHttpClient implements HttpClient {
      *
      * @param customFetch - 可選的自訂 fetch 實作（例如：用於測試或沒有全域 fetch 的 Node.js 版本）。
      */
-    constructor(private customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>) { }
+    constructor(
+        private customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+    ) {}
 
     public async post(url: string, body: URLSearchParams): Promise<ResponseData> {
         const fetchFn = this.customFetch || fetch;
         const response = await fetchFn(url, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'NewebPay-Logistics-Node-SDK',
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": "NewebPay-Logistics-Node-SDK",
             },
             body: body,
         });

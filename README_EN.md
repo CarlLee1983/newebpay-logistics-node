@@ -221,12 +221,12 @@ constructor(
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Bun 1.0 or higher
 
 ### Setup
 
 ```bash
-npm install
+bun install
 ```
 
 ### Testing
@@ -234,13 +234,19 @@ npm install
 Run unit tests:
 
 ```bash
-npm test
+bun test
 ```
 
 Run tests in watch mode:
 
 ```bash
-npm run test:watch
+bun test --watch
+```
+
+Run tests with coverage:
+
+```bash
+bun test --coverage
 ```
 
 ### Building
@@ -248,7 +254,7 @@ npm run test:watch
 Build the project:
 
 ```bash
-npm run build
+bun run build
 ```
 
 ### Linting & Formatting
@@ -256,13 +262,37 @@ npm run build
 Check for linting errors:
 
 ```bash
-npm run lint
+bun run lint
+```
+
+Auto-fix linting errors:
+
+```bash
+bun run lint:fix
 ```
 
 Format code:
 
 ```bash
-npm run format
+bun run format
+```
+
+Check code formatting:
+
+```bash
+bun run format:check
+```
+
+Check both lint and format:
+
+```bash
+bun run check
+```
+
+Auto-fix both lint and format:
+
+```bash
+bun run check:fix
 ```
 
 ## Notes

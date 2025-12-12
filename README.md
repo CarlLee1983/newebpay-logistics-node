@@ -221,12 +221,12 @@ constructor(
 
 ### 前置需求
 
-- Node.js 18 或更高版本
+- Bun 1.0 或更高版本
 
 ### 設定
 
 ```bash
-npm install
+bun install
 ```
 
 ### 測試
@@ -234,13 +234,19 @@ npm install
 執行單元測試：
 
 ```bash
-npm test
+bun test
 ```
 
 監聽模式執行測試：
 
 ```bash
-npm run test:watch
+bun test --watch
+```
+
+執行測試並產生覆蓋率報告：
+
+```bash
+bun test --coverage
 ```
 
 ### 建置
@@ -248,7 +254,7 @@ npm run test:watch
 建置專案：
 
 ```bash
-npm run build
+bun run build
 ```
 
 ### 程式碼檢查與格式化
@@ -256,13 +262,37 @@ npm run build
 檢查程式碼錯誤：
 
 ```bash
-npm run lint
+bun run lint
+```
+
+自動修復程式碼錯誤：
+
+```bash
+bun run lint:fix
 ```
 
 格式化程式碼：
 
 ```bash
-npm run format
+bun run format
+```
+
+檢查程式碼格式：
+
+```bash
+bun run format:check
+```
+
+同時檢查 lint 和 format：
+
+```bash
+bun run check
+```
+
+自動修復 lint 和 format：
+
+```bash
+bun run check:fix
 ```
 
 ## 注意事項

@@ -27,8 +27,12 @@
 
 3. **安裝依賴**
    ```bash
-   npm install
+   bun install
    ```
+   
+   安裝完成後，`simple-git-hooks` 會自動設置 git hooks：
+   - **pre-commit**: 自動執行程式碼檢查（`bun run check`）
+   - **commit-msg**: 驗證 commit message 格式是否符合規範
 
 4. **進行開發**
    - 遵循現有的程式碼風格
@@ -39,14 +43,23 @@
 5. **執行測試與檢查**
    ```bash
    # 執行測試
-   npm test
+   bun test
    
    # 檢查程式碼風格
-   npm run lint
+   bun run lint
    
-   # 格式化程式碼
-   npm run format
+   # 自動修復程式碼問題
+   bun run check:fix
    ```
+   
+   **注意**：
+   - 在 commit 前，git hooks 會自動執行 `bun run check` 進行程式碼檢查
+   - commit message 會自動驗證格式，必須符合 `<type>：[ <scope> ] <subject>` 格式
+   - 如果檢查失敗，commit 會被阻止
+   - 您可以使用以下方式跳過檢查（不建議）：
+     ```bash
+     SKIP_SIMPLE_GIT_HOOKS=1 git commit -m "your message"
+     ```
 
 6. **提交變更**
    ```bash
@@ -75,8 +88,7 @@
 ### 程式碼風格
 
 - 使用 TypeScript
-- 遵循 ESLint 規則
-- 使用 Prettier 格式化
+- 遵循 Biome 規則（linting 和 formatting）
 - 撰寫繁體中文註解
 
 ### 測試

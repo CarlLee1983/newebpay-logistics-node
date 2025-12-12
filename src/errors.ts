@@ -18,7 +18,10 @@ export class NetworkError extends NewebPayError {
      * @param message - 錯誤訊息。
      * @param originalError - 導致失敗的原始錯誤。
      */
-    constructor(message: string, public readonly originalError?: unknown) {
+    constructor(
+        message: string,
+        public readonly originalError?: unknown
+    ) {
         super(message);
     }
 }
@@ -34,7 +37,11 @@ export class ApiError extends NewebPayError {
      * @param status - HTTP 狀態碼或 API 狀態。
      * @param data - 與錯誤相關的額外資料。
      */
-    constructor(message: string, public readonly status: string, public readonly data?: unknown) {
+    constructor(
+        message: string,
+        public readonly status: string,
+        public readonly data?: unknown
+    ) {
         super(message);
     }
 }
@@ -42,8 +49,4 @@ export class ApiError extends NewebPayError {
 /**
  * 當請求驗證失敗時拋出的錯誤。
  */
-export class ValidationError extends NewebPayError {
-    constructor(message: string) {
-        super(message);
-    }
-}
+export class ValidationError extends NewebPayError {}

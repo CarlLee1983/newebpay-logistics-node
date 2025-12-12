@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { NewebPayError, NetworkError, ApiError, ValidationError } from "../src/errors.js";
+import { describe, expect, it } from "bun:test";
+import { ApiError, NetworkError, NewebPayError, ValidationError } from "../src/errors.js";
 
 describe("Custom Errors", () => {
     it("should inherit from Error", () => {

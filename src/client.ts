@@ -1,15 +1,15 @@
-import { BaseRequest } from "./requests/base.request.js";
-import { MapRequest } from "./requests/map.request.js";
-import { CreateOrderRequest } from "./requests/create-order.request.js";
-import { QueryOrderRequest } from "./requests/query-order.request.js";
-import { PrintOrderRequest } from "./requests/print-order.request.js";
-import { BaseResponse, BaseResponseData } from "./responses/base.response.js";
-import { CreateOrderResponse } from "./responses/create-order.response.js";
-import { QueryOrderResponse } from "./responses/query-order.response.js";
-import { PrintOrderResponse } from "./responses/print-order.response.js";
-import { NetworkError, ApiError } from "./errors.js";
-import { HttpClient, FetchHttpClient, ResponseData } from "./transport.js";
 import { Environment } from "./constants.js";
+import { ApiError, NetworkError } from "./errors.js";
+import type { BaseRequest } from "./requests/base.request.js";
+import { CreateOrderRequest } from "./requests/create-order.request.js";
+import { MapRequest } from "./requests/map.request.js";
+import { PrintOrderRequest } from "./requests/print-order.request.js";
+import { QueryOrderRequest } from "./requests/query-order.request.js";
+import { BaseResponse, type BaseResponseData } from "./responses/base.response.js";
+import { CreateOrderResponse } from "./responses/create-order.response.js";
+import { PrintOrderResponse } from "./responses/print-order.response.js";
+import { QueryOrderResponse } from "./responses/query-order.response.js";
+import { FetchHttpClient, type HttpClient, type ResponseData } from "./transport.js";
 
 /**
  * NewebPay Logistics SDK 客戶端。
@@ -46,7 +46,13 @@ export class NewebPayLogistics {
      * @returns 新的 MapRequest 實例。
      */
     public map(): MapRequest {
-        return new MapRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
+        return new MapRequest(
+            this.merchantId,
+            this.hashKey,
+            this.hashIV,
+            undefined,
+            this.environment
+        );
     }
 
     /**
@@ -55,7 +61,13 @@ export class NewebPayLogistics {
      * @returns 新的 CreateOrderRequest 實例。
      */
     public createOrder(): CreateOrderRequest {
-        return new CreateOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
+        return new CreateOrderRequest(
+            this.merchantId,
+            this.hashKey,
+            this.hashIV,
+            undefined,
+            this.environment
+        );
     }
 
     /**
@@ -64,7 +76,13 @@ export class NewebPayLogistics {
      * @returns 新的 QueryOrderRequest 實例。
      */
     public queryOrder(): QueryOrderRequest {
-        return new QueryOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
+        return new QueryOrderRequest(
+            this.merchantId,
+            this.hashKey,
+            this.hashIV,
+            undefined,
+            this.environment
+        );
     }
 
     /**
@@ -73,7 +91,13 @@ export class NewebPayLogistics {
      * @returns 新的 PrintOrderRequest 實例。
      */
     public printOrder(): PrintOrderRequest {
-        return new PrintOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
+        return new PrintOrderRequest(
+            this.merchantId,
+            this.hashKey,
+            this.hashIV,
+            undefined,
+            this.environment
+        );
     }
 
     /**
@@ -103,10 +127,7 @@ export class NewebPayLogistics {
         }
 
         if (!response.ok) {
-            throw new ApiError(
-                `HTTP 錯誤！狀態碼: ${response.status}`,
-                String(response.status)
-            );
+            throw new ApiError(`HTTP 錯誤！狀態碼: ${response.status}`, String(response.status));
         }
 
         let text: string;
@@ -121,7 +142,8 @@ export class NewebPayLogistics {
             const json = JSON.parse(text);
             if (request instanceof CreateOrderRequest) {
                 return CreateOrderResponse.from(json);
-            } else if (request instanceof QueryOrderRequest) {
+            }
+            if (request instanceof QueryOrderRequest) {
                 return QueryOrderResponse.from(json);
             }
             return new BaseResponse(json);

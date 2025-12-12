@@ -3,7 +3,7 @@ import { MapRequest } from "./requests/map.request.js";
 import { CreateOrderRequest } from "./requests/create-order.request.js";
 import { QueryOrderRequest } from "./requests/query-order.request.js";
 import { PrintOrderRequest } from "./requests/print-order.request.js";
-import { BaseResponse } from "./responses/base.response.js";
+import { BaseResponse, BaseResponseData } from "./responses/base.response.js";
 import { CreateOrderResponse } from "./responses/create-order.response.js";
 import { QueryOrderResponse } from "./responses/query-order.response.js";
 import { PrintOrderResponse } from "./responses/print-order.response.js";
@@ -84,7 +84,7 @@ export class NewebPayLogistics {
      * @throws {NetworkError} 當網路請求失敗時。
      * @throws {ApiError} 當 API 回傳非成功的 HTTP 狀態時。
      */
-    public async send(request: BaseRequest): Promise<BaseResponse> {
+    public async send(request: BaseRequest): Promise<BaseResponse<BaseResponseData | string>> {
         const payload = request.getPayload();
         const url = request.getUrl();
 

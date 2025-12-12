@@ -27,6 +27,8 @@ Thumbs.db
 
 # Testing
 coverage/
+.nyc_output/
+*.lcov
 
 # IDEs
 .vscode/

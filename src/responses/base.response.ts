@@ -10,9 +10,9 @@ export interface BaseResponseData {
 /**
  * 所有 NewebPay Logistics 回應的基底類別。
  *
- * @template T - 回應資料的型別，預設為 BaseResponseData。
+ * @template T - 回應資料的型別，預設為 BaseResponseData。可以是 BaseResponseData 或 string（用於 HTML 回應）。
  */
-export class BaseResponse<T extends BaseResponseData = BaseResponseData> {
+export class BaseResponse<T extends BaseResponseData | string = BaseResponseData> {
   protected data: T;
 
   /**
@@ -39,6 +39,10 @@ export class BaseResponse<T extends BaseResponseData = BaseResponseData> {
    * @returns 如果狀態為 SUCCESS 則回傳 true，否則回傳 false。
    */
   public isSuccess(): boolean {
+    if (typeof this.data === "string") {
+      // 字串類型的回應（如 HTML）無法判斷成功與否，預設為 true
+      return true;
+    }
     return this.data.Status === "SUCCESS";
   }
 
@@ -48,6 +52,9 @@ export class BaseResponse<T extends BaseResponseData = BaseResponseData> {
    * @returns API 回傳的訊息。
    */
   public getMessage(): string {
+    if (typeof this.data === "string") {
+      return "";
+    }
     return this.data.Message || "";
   }
 
@@ -57,6 +64,9 @@ export class BaseResponse<T extends BaseResponseData = BaseResponseData> {
    * @returns API 回傳的狀態。
    */
   public getStatus(): string | undefined {
+    if (typeof this.data === "string") {
+      return undefined;
+    }
     return this.data.Status;
   }
 }

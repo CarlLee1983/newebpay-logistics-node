@@ -6,7 +6,7 @@ import { RespondType, Version, Environment, API_BASE_URLS } from "../constants.j
  *
  * @template T - 請求內容的型別。
  */
-export abstract class BaseRequest<T = Record<string, any>> {
+export abstract class BaseRequest<T = Record<string, unknown>> {
   protected content: T = {} as T;
   protected abstract requestPath: string;
   protected encryptionService: EncryptionService;
@@ -87,7 +87,7 @@ export abstract class BaseRequest<T = Record<string, any>> {
    * @returns BaseRequest 實例，支援鏈式呼叫。
    */
   public setMerchantTradeNo(tradeNo: string): this {
-    (this.content as any).MerchantOrderNo = tradeNo;
+    (this.content as Record<string, unknown>).MerchantOrderNo = tradeNo;
     return this;
   }
 
@@ -98,7 +98,7 @@ export abstract class BaseRequest<T = Record<string, any>> {
    * @returns BaseRequest 實例，支援鏈式呼叫。
    */
   public setTimeStamp(timeStamp: string | number): this {
-    (this.content as any).TimeStamp = timeStamp;
+    (this.content as Record<string, unknown>).TimeStamp = timeStamp;
     return this;
   }
 }

@@ -9,81 +9,86 @@ import { QueryOrderResponse } from "./responses/query-order.response.js";
 import { PrintOrderResponse } from "./responses/print-order.response.js";
 import { NetworkError, ApiError } from "./errors.js";
 import { HttpClient, FetchHttpClient, ResponseData } from "./transport.js";
+import { Environment } from "./constants.js";
 
 /**
- * NewebPay Logistics SDK Client.
+ * NewebPay Logistics SDK 客戶端。
  *
- * This class provides methods to interact with NewebPay Logistics API.
+ * 此類別提供與 NewebPay Logistics API 互動的方法。
  */
 export class NewebPayLogistics {
     private httpClient: HttpClient;
+    private environment: Environment;
 
     /**
-     * Creates an instance of NewebPayLogistics.
+     * 建立 NewebPayLogistics 實例。
      *
-     * @param merchantId - The Merchant ID provided by NewebPay.
-     * @param hashKey - The Hash Key provided by NewebPay.
-     * @param hashIV - The Hash IV provided by NewebPay.
-     * @param httpClient - Optional custom HttpClient implementation. Defaults to FetchHttpClient.
+     * @param merchantId - NewebPay 提供的 Merchant ID。
+     * @param hashKey - NewebPay 提供的 Hash Key。
+     * @param hashIV - NewebPay 提供的 Hash IV。
+     * @param httpClient - 可選的自訂 HttpClient 實作。預設為 FetchHttpClient。
+     * @param environment - API 環境（測試或正式）。預設為測試環境。
      */
     constructor(
         private merchantId: string,
         private hashKey: string,
         private hashIV: string,
-        httpClient?: HttpClient
+        httpClient?: HttpClient,
+        environment: Environment = Environment.TEST
     ) {
         this.httpClient = httpClient || new FetchHttpClient();
+        this.environment = environment;
     }
 
     /**
-     * Creates a MapRequest instance.
+     * 建立 MapRequest 實例。
      *
-     * @returns A new MapRequest instance.
+     * @returns 新的 MapRequest 實例。
      */
     public map(): MapRequest {
-        return new MapRequest(this.merchantId, this.hashKey, this.hashIV);
+        return new MapRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
     }
 
     /**
-     * Creates a CreateOrderRequest instance.
+     * 建立 CreateOrderRequest 實例。
      *
-     * @returns A new CreateOrderRequest instance.
+     * @returns 新的 CreateOrderRequest 實例。
      */
     public createOrder(): CreateOrderRequest {
-        return new CreateOrderRequest(this.merchantId, this.hashKey, this.hashIV);
+        return new CreateOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
     }
 
     /**
-     * Creates a QueryOrderRequest instance.
+     * 建立 QueryOrderRequest 實例。
      *
-     * @returns A new QueryOrderRequest instance.
+     * @returns 新的 QueryOrderRequest 實例。
      */
     public queryOrder(): QueryOrderRequest {
-        return new QueryOrderRequest(this.merchantId, this.hashKey, this.hashIV);
+        return new QueryOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
     }
 
     /**
-     * Creates a PrintOrderRequest instance.
+     * 建立 PrintOrderRequest 實例。
      *
-     * @returns A new PrintOrderRequest instance.
+     * @returns 新的 PrintOrderRequest 實例。
      */
     public printOrder(): PrintOrderRequest {
-        return new PrintOrderRequest(this.merchantId, this.hashKey, this.hashIV);
+        return new PrintOrderRequest(this.merchantId, this.hashKey, this.hashIV, undefined, this.environment);
     }
 
     /**
-     * Sends a request to NewebPay Logistics API.
+     * 發送請求到 NewebPay Logistics API。
      *
-     * @param request - The request object to send.
-     * @returns A promise that resolves to the response object.
-     * @throws {NetworkError} If the network request fails.
-     * @throws {ApiError} If the API returns a non-success HTTP status.
+     * @param request - 要發送的請求物件。
+     * @returns 解析為回應物件的 Promise。
+     * @throws {NetworkError} 當網路請求失敗時。
+     * @throws {ApiError} 當 API 回傳非成功的 HTTP 狀態時。
      */
     public async send(request: BaseRequest): Promise<BaseResponse> {
         const payload = request.getPayload();
         const url = request.getUrl();
 
-        // Convert payload to URLSearchParams
+        // 將 payload 轉換為 URLSearchParams
         const params = new URLSearchParams();
         for (const [key, value] of Object.entries(payload)) {
             params.append(key, String(value));
@@ -94,16 +99,24 @@ export class NewebPayLogistics {
         try {
             response = await this.httpClient.post(url, params);
         } catch (error) {
-            throw new NetworkError('Network request failed', error);
+            throw new NetworkError("網路請求失敗", error);
         }
 
         if (!response.ok) {
-            throw new ApiError(`HTTP error! status: ${response.status}`, String(response.status));
+            throw new ApiError(
+                `HTTP 錯誤！狀態碼: ${response.status}`,
+                String(response.status)
+            );
         }
 
-        const text = await response.text();
+        let text: string;
+        try {
+            text = await response.text();
+        } catch (error) {
+            throw new NetworkError("讀取回應內容失敗", error);
+        }
 
-        // Try to parse JSON, if fails return text (for HTML responses like PrintOrder)
+        // 嘗試解析 JSON，如果失敗則回傳文字（用於 HTML 回應如 PrintOrder）
         try {
             const json = JSON.parse(text);
             if (request instanceof CreateOrderRequest) {
@@ -112,13 +125,18 @@ export class NewebPayLogistics {
                 return QueryOrderResponse.from(json);
             }
             return new BaseResponse(json);
-        } catch (e) {
+        } catch (parseError) {
+            // PrintOrder 請求預期可能是 HTML 回應
             if (request instanceof PrintOrderRequest) {
                 return PrintOrderResponse.from(text);
             }
-            // If we expected JSON but got text, and it's not a known HTML response, it might be an error
-            // But for BaseResponse fallback, we keep it as is for now, or we could wrap it
-            return new BaseResponse(text);
+            // 對於其他請求，如果預期 JSON 但得到文字，可能是錯誤回應
+            // 拋出 ApiError 以便呼叫者可以處理
+            throw new ApiError(
+                `無法解析回應為 JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+                String(response.status),
+                text
+            );
         }
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Base error class for NewebPay Logistics SDK.
+ * NewebPay Logistics SDK 的基底錯誤類別。
  */
 export class NewebPayError extends Error {
     constructor(message: string) {
@@ -9,14 +9,14 @@ export class NewebPayError extends Error {
 }
 
 /**
- * Error thrown when a network request fails.
+ * 當網路請求失敗時拋出的錯誤。
  */
 export class NetworkError extends NewebPayError {
     /**
-     * Creates an instance of NetworkError.
+     * 建立 NetworkError 實例。
      *
-     * @param message - The error message.
-     * @param originalError - The original error that caused the failure.
+     * @param message - 錯誤訊息。
+     * @param originalError - 導致失敗的原始錯誤。
      */
     constructor(message: string, public readonly originalError?: unknown) {
         super(message);
@@ -24,15 +24,15 @@ export class NetworkError extends NewebPayError {
 }
 
 /**
- * Error thrown when the API returns a non-success status.
+ * 當 API 回傳非成功狀態時拋出的錯誤。
  */
 export class ApiError extends NewebPayError {
     /**
-     * Creates an instance of ApiError.
+     * 建立 ApiError 實例。
      *
-     * @param message - The error message.
-     * @param status - The HTTP status code or API status.
-     * @param data - Additional data related to the error.
+     * @param message - 錯誤訊息。
+     * @param status - HTTP 狀態碼或 API 狀態。
+     * @param data - 與錯誤相關的額外資料。
      */
     constructor(message: string, public readonly status: string, public readonly data?: unknown) {
         super(message);
@@ -40,7 +40,7 @@ export class ApiError extends NewebPayError {
 }
 
 /**
- * Error thrown when request validation fails.
+ * 當請求驗證失敗時拋出的錯誤。
  */
 export class ValidationError extends NewebPayError {
     constructor(message: string) {

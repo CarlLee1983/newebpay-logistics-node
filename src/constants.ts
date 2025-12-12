@@ -1,15 +1,15 @@
 /**
- * Logistics Type (LgsType).
+ * 物流類型（LgsType）。
  */
 export enum LgsType {
-  /** B2C (Business to Consumer) */
+  /** B2C（企業對消費者） */
   B2C = "B2C",
-  /** C2C (Consumer to Consumer) */
+  /** C2C（消費者對消費者） */
   C2C = "C2C",
 }
 
 /**
- * Shipping Type (ShipType).
+ * 配送類型（ShipType）。
  */
 export enum ShipType {
   /** 7-Eleven */
@@ -23,31 +23,49 @@ export enum ShipType {
 }
 
 /**
- * Trade Type (TradeType).
+ * 交易類型（TradeType）。
  */
 export enum TradeType {
-  /** Payment required */
+  /** 需要付款 */
   PAYMENT = "1",
-  /** No payment required */
+  /** 不需要付款 */
   NON_PAYMENT = "3",
 }
 
 /**
- * Response Type (RespondType).
+ * 回應類型（RespondType）。
  */
 export enum RespondType {
-  /** JSON format */
+  /** JSON 格式 */
   JSON = "JSON",
-  /** HTML format */
+  /** HTML 格式 */
   HTML = "HTML",
-  /** String format */
+  /** 字串格式 */
   STRING = "String",
 }
 
 /**
- * API Version.
+ * API 版本。
  */
 export enum Version {
-  /** Version 1.0 */
+  /** 版本 1.0 */
   V_1_0 = "1.0",
 }
+
+/**
+ * API 環境類型。
+ */
+export enum Environment {
+  /** 測試環境 */
+  TEST = "test",
+  /** 正式環境 */
+  PRODUCTION = "production",
+}
+
+/**
+ * API 基礎 URL 對應。
+ */
+export const API_BASE_URLS: Record<Environment, string> = {
+  [Environment.TEST]: "https://ccore.newebpay.com/API/Logistic",
+  [Environment.PRODUCTION]: "https://core.newebpay.com/API/Logistic",
+};

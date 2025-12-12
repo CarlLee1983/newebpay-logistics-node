@@ -1,44 +1,62 @@
 /**
- * Base class for all NewebPay Logistics responses.
- *
- * @template T - The type of the response data.
+ * NewebPay API 回應的基本資料結構。
  */
-export class BaseResponse<T = any> {
+export interface BaseResponseData {
+  Status?: string;
+  Message?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * 所有 NewebPay Logistics 回應的基底類別。
+ *
+ * @template T - 回應資料的型別，預設為 BaseResponseData。
+ */
+export class BaseResponse<T extends BaseResponseData = BaseResponseData> {
   protected data: T;
 
   /**
-   * Creates an instance of BaseResponse.
+   * 建立 BaseResponse 實例。
    *
-   * @param data - The raw response data.
+   * @param data - 原始回應資料。
    */
   constructor(data: T) {
     this.data = data;
   }
 
   /**
-   * Gets the raw response data.
+   * 取得原始回應資料。
    *
-   * @returns The response data.
+   * @returns 回應資料。
    */
   public getData(): T {
     return this.data;
   }
 
   /**
-   * Checks if the request was successful.
+   * 檢查請求是否成功。
    *
-   * @returns True if the status is SUCCESS, false otherwise.
+   * @returns 如果狀態為 SUCCESS 則回傳 true，否則回傳 false。
    */
   public isSuccess(): boolean {
-    return (this.data as any).Status === "SUCCESS";
+    return this.data.Status === "SUCCESS";
   }
 
   /**
-   * Gets the response message.
+   * 取得回應訊息。
    *
-   * @returns The message from the API.
+   * @returns API 回傳的訊息。
    */
   public getMessage(): string {
-    return (this.data as any).Message || "";
+    return this.data.Message || "";
+  }
+
+  /**
+   * 取得回應狀態。
+   *
+   * @returns API 回傳的狀態。
+   */
+  public getStatus(): string | undefined {
+    return this.data.Status;
   }
 }

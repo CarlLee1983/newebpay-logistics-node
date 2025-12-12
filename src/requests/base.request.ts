@@ -1,46 +1,50 @@
 import { EncryptionService } from "../services/encryption.service.js";
-import { RespondType, Version } from "../constants.js";
+import { RespondType, Version, Environment, API_BASE_URLS } from "../constants.js";
 
 /**
- * Abstract base class for all NewebPay Logistics requests.
+ * 所有 NewebPay Logistics 請求的抽象基底類別。
  *
- * @template T - The type of the request content.
+ * @template T - 請求內容的型別。
  */
 export abstract class BaseRequest<T = Record<string, any>> {
   protected content: T = {} as T;
   protected abstract requestPath: string;
   protected encryptionService: EncryptionService;
+  protected environment: Environment;
 
   /**
-   * Creates an instance of BaseRequest.
+   * 建立 BaseRequest 實例。
    *
-   * @param merchantId - The Merchant ID provided by NewebPay.
-   * @param hashKey - The Hash Key provided by NewebPay.
-   * @param hashIV - The Hash IV provided by NewebPay.
-   * @param encryptionService - Optional custom EncryptionService.
+   * @param merchantId - NewebPay 提供的 Merchant ID。
+   * @param hashKey - NewebPay 提供的 Hash Key。
+   * @param hashIV - NewebPay 提供的 Hash IV。
+   * @param encryptionService - 可選的自訂 EncryptionService。
+   * @param environment - API 環境（測試或正式）。預設為測試環境。
    */
   constructor(
     protected merchantId: string,
     protected hashKey: string,
     protected hashIV: string,
-    encryptionService?: EncryptionService
+    encryptionService?: EncryptionService,
+    environment: Environment = Environment.TEST
   ) {
     this.encryptionService = encryptionService || new EncryptionService();
+    this.environment = environment;
   }
 
   /**
-   * Validates the request content.
+   * 驗證請求內容。
    *
-   * @throws {ZodError} If validation fails.
+   * @throws {ValidationError} 當驗證失敗時。
    */
   protected abstract validate(): void;
 
   /**
-   * Generates the payload for the request.
+   * 產生請求的 payload。
    *
-   * This method validates the content, encrypts it, and generates the hash.
+   * 此方法會驗證內容、加密並產生雜湊。
    *
-   * @returns The payload object containing encrypted data and hash.
+   * @returns 包含加密資料和雜湊的 payload 物件。
    */
   public getPayload(): Record<string, string> {
     this.validate();
@@ -59,7 +63,7 @@ export abstract class BaseRequest<T = Record<string, any>> {
     return {
       MerchantID_: this.merchantId,
       PostData_: encryptedData,
-      UID_: this.merchantId, // NewebPay seems to use UID_ as well in some contexts, mirroring PHP SDK
+      UID_: this.merchantId, // NewebPay 在某些情境下也會使用 UID_，與 PHP SDK 保持一致
       EncryptData_: encryptedData,
       HashData_: hashData,
       Version_: Version.V_1_0,
@@ -68,12 +72,33 @@ export abstract class BaseRequest<T = Record<string, any>> {
   }
 
   /**
-   * Gets the full URL for the request.
+   * 取得請求的完整 URL。
    *
-   * @returns The API URL.
+   * @returns API URL。
    */
   public getUrl(): string {
-    // Default to testing environment, can be overridden
-    return `https://ccore.newebpay.com/API/Logistic${this.requestPath}`;
+    return `${API_BASE_URLS[this.environment]}${this.requestPath}`;
+  }
+
+  /**
+   * 設定 Merchant Trade Number（所有請求共用）。
+   *
+   * @param tradeNo - 商家的唯一交易編號。
+   * @returns BaseRequest 實例，支援鏈式呼叫。
+   */
+  public setMerchantTradeNo(tradeNo: string): this {
+    (this.content as any).MerchantOrderNo = tradeNo;
+    return this;
+  }
+
+  /**
+   * 設定 Timestamp（所有請求共用）。
+   *
+   * @param timeStamp - 請求的時間戳記。
+   * @returns BaseRequest 實例，支援鏈式呼叫。
+   */
+  public setTimeStamp(timeStamp: string | number): this {
+    (this.content as any).TimeStamp = timeStamp;
+    return this;
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Interface for HTTP response data.
+ * HTTP 回應資料的介面。
  */
 export interface ResponseData {
     ok: boolean;
@@ -8,27 +8,27 @@ export interface ResponseData {
 }
 
 /**
- * Interface for an HTTP client.
+ * HTTP 客戶端的介面。
  */
 export interface HttpClient {
     /**
-     * Sends a POST request.
+     * 發送 POST 請求。
      *
-     * @param url - The URL to send the request to.
-     * @param body - The body of the request (URLSearchParams).
-     * @returns A promise that resolves to the response data.
+     * @param url - 要發送請求的 URL。
+     * @param body - 請求的 body（URLSearchParams）。
+     * @returns 解析為回應資料的 Promise。
      */
     post(url: string, body: URLSearchParams): Promise<ResponseData>;
 }
 
 /**
- * Default implementation of HttpClient using the Fetch API.
+ * 使用 Fetch API 的 HttpClient 預設實作。
  */
 export class FetchHttpClient implements HttpClient {
     /**
-     * Creates an instance of FetchHttpClient.
+     * 建立 FetchHttpClient 實例。
      *
-     * @param customFetch - Optional custom fetch implementation (e.g., for testing or Node.js versions without global fetch).
+     * @param customFetch - 可選的自訂 fetch 實作（例如：用於測試或沒有全域 fetch 的 Node.js 版本）。
      */
     constructor(private customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>) { }
 

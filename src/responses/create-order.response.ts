@@ -1,7 +1,7 @@
 import { BaseResponse } from "./base.response.js";
 
 /**
- * Response data structure for CreateOrder request.
+ * CreateOrder 請求的回應資料結構。
  */
 export interface CreateOrderResponseData {
   Status: string;
@@ -10,22 +10,22 @@ export interface CreateOrderResponseData {
     MerchantID: string;
     MerchantOrderNo: string;
     TradeNo: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
- * Response for CreateOrder request.
+ * CreateOrder 請求的回應。
  */
 export class CreateOrderResponse extends BaseResponse<CreateOrderResponseData> {
   /**
-   * Creates a CreateOrderResponse from raw data.
+   * 從原始資料建立 CreateOrderResponse。
    *
-   * @param data - The raw response data.
-   * @returns A new CreateOrderResponse instance.
+   * @param data - 原始回應資料。
+   * @returns 新的 CreateOrderResponse 實例。
    */
-  public static from(data: any): CreateOrderResponse {
-    return new CreateOrderResponse(data);
+  public static from(data: unknown): CreateOrderResponse {
+    return new CreateOrderResponse(data as CreateOrderResponseData);
   }
 }

@@ -1,7 +1,7 @@
 import { BaseResponse } from "./base.response.js";
 
 /**
- * Response data structure for QueryOrder request.
+ * QueryOrder 請求的回應資料結構。
  */
 export interface QueryOrderResponseData {
   Status: string;
@@ -10,22 +10,22 @@ export interface QueryOrderResponseData {
     MerchantID: string;
     MerchantOrderNo: string;
     LogisticsStatus: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
- * Response for QueryOrder request.
+ * QueryOrder 請求的回應。
  */
 export class QueryOrderResponse extends BaseResponse<QueryOrderResponseData> {
   /**
-   * Creates a QueryOrderResponse from raw data.
+   * 從原始資料建立 QueryOrderResponse。
    *
-   * @param data - The raw response data.
-   * @returns A new QueryOrderResponse instance.
+   * @param data - 原始回應資料。
+   * @returns 新的 QueryOrderResponse 實例。
    */
-  public static from(data: any): QueryOrderResponse {
-    return new QueryOrderResponse(data);
+  public static from(data: unknown): QueryOrderResponse {
+    return new QueryOrderResponse(data as QueryOrderResponseData);
   }
 }

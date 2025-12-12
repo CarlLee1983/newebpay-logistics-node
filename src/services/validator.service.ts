@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { LgsType, ShipType, TradeType } from "../constants.js";
+import { ValidationError } from "../errors.js";
 
 /**
- * Service for validating request data using Zod schemas.
+ * 使用 Zod schemas 驗證請求資料的服務。
  */
 export class ValidatorService {
   /**
@@ -61,15 +62,25 @@ export class ValidatorService {
   });
 
   /**
-   * Validates data against a Zod schema.
+   * 使用 Zod schema 驗證資料。
    *
-   * @template T - The type of the data.
-   * @param schema - The Zod schema.
-   * @param data - The data to validate.
-   * @returns The validated data.
-   * @throws {ZodError} If validation fails.
+   * @template T - 資料的型別。
+   * @param schema - Zod schema。
+   * @param data - 要驗證的資料。
+   * @returns 驗證後的資料。
+   * @throws {ValidationError} 當驗證失敗時。
    */
   public static validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
-    return schema.parse(data);
+    try {
+      return schema.parse(data);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessages = error.errors
+          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .join("; ");
+        throw new ValidationError(`驗證失敗: ${errorMessages}`);
+      }
+      throw error;
+    }
   }
 }

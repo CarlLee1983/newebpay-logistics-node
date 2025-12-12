@@ -1,36 +1,36 @@
 import { BaseResponse } from "./base.response.js";
 
 /**
- * Response data structure for PrintOrder request.
- * Can be a string (HTML) or an object.
+ * PrintOrder 請求的回應資料結構。
+ * 可以是字串（HTML）或物件。
  */
-export type PrintOrderResponseData = string | { Result?: string;[key: string]: any };
+export type PrintOrderResponseData = string | { Result?: string; [key: string]: unknown };
 
 /**
- * Response for PrintOrder request.
+ * PrintOrder 請求的回應。
  */
 export class PrintOrderResponse extends BaseResponse<PrintOrderResponseData> {
   /**
-   * Creates a PrintOrderResponse from raw data.
+   * 從原始資料建立 PrintOrderResponse。
    *
-   * @param data - The raw response data.
-   * @returns A new PrintOrderResponse instance.
+   * @param data - 原始回應資料。
+   * @returns 新的 PrintOrderResponse 實例。
    */
-  public static from(data: any): PrintOrderResponse {
-    return new PrintOrderResponse(data);
+  public static from(data: unknown): PrintOrderResponse {
+    return new PrintOrderResponse(data as PrintOrderResponseData);
   }
 
   /**
-   * Gets the HTML content for printing.
+   * 取得用於列印的 HTML 內容。
    *
-   * @returns The HTML string.
+   * @returns HTML 字串。
    */
   public getHtmlContent(): string {
-    // PrintOrder usually returns HTML content directly or in a field
-    // If the response is HTML string, this.data might be string
+    // PrintOrder 通常直接回傳 HTML 內容或在欄位中
+    // 如果回應是 HTML 字串，this.data 可能是字串
     if (typeof this.data === "string") {
       return this.data;
     }
-    return this.data.Result || "";
+    return (this.data as { Result?: string }).Result || "";
   }
 }

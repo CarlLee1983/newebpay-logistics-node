@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 討論區
+    url: https://github.com/your-username/newebpay-logistics-node/discussions
+    about: 提出問題或分享想法
+  - name: 📖 文件
+    url: https://github.com/your-username/newebpay-logistics-node#readme
+    about: 查看文件
+

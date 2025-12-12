@@ -1,13 +1,24 @@
 {
     "name": "@carllee1983/newebpay-logistics",
     "version": "1.0.1",
-    "description": "藍新金流物流 SDK - NewebPay Logistics SDK for Node.js",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "description": "藍新金流物流 SDK - 完整的 TypeScript 支援、資料驗證、錯誤處理與 XSS 防護的 NewebPay Logistics API 整合套件",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "type": "module",
     "exports": {
-        ".": "./dist/index.js"
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
     },
+    "files": [
+        "dist",
+        "README.md",
+        "README_EN.md",
+        "LICENSE",
+        "CHANGELOG.md"
+    ],
     "scripts": {
         "build": "tsc",
         "test": "vitest run",
@@ -20,10 +31,28 @@
     },
     "keywords": [
         "newebpay",
+        "藍新金流",
         "logistics",
+        "物流",
+        "shipping",
+        "delivery",
+        "cvs",
+        "convenience-store",
+        "7-11",
+        "7eleven",
+        "familymart",
+        "hilife",
+        "okmart",
         "node",
+        "nodejs",
         "typescript",
-        "sdk"
+        "sdk",
+        "api",
+        "integration",
+        "payment",
+        "ecommerce",
+        "taiwan",
+        "台灣"
     ],
     "author": "Carl Lee",
     "license": "MIT",

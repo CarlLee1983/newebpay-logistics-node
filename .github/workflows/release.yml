@@ -1,0 +1,240 @@
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version_type:
+                description: "版本類型"
+                required: true
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+    push:
+        tags:
+            - "v*.*.*"
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: latest
+
+            - name: Configure Git
+              run: |
+                  git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --local user.name "github-actions[bot]"
+
+            - name: Determine version type
+              id: version
+              run: |
+                  if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+                      echo "type=${{ github.event.inputs.version_type }}" >> $GITHUB_OUTPUT
+                  elif [ "${{ github.event_name }}" == "push" ]; then
+                      # 從 tag 提取版本號（例如 v1.0.0 -> 1.0.0）
+                      TAG=${GITHUB_REF#refs/tags/}
+                      TAG=${TAG#v}
+                      echo "tag=$TAG" >> $GITHUB_OUTPUT
+                      echo "type=tag" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Get current version
+              id: current_version
+              run: |
+                  CURRENT_VERSION=$(bun -e "console.log(require('./package.json').version)")
+                  echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+                  echo "Current version: $CURRENT_VERSION"
+
+            - name: Calculate new version
+              id: new_version
+              run: |
+                  CURRENT_VERSION="${{ steps.current_version.outputs.version }}"
+                  
+                  if [ "${{ steps.version.outputs.type }}" == "tag" ]; then
+                      # 從 tag 使用版本號
+                      NEW_VERSION="${{ steps.version.outputs.tag }}"
+                  else
+                      # 根據版本類型計算新版本號
+                      VERSION_TYPE="${{ steps.version.outputs.type }}"
+                      
+                      # 使用 bun 來計算新版本號（更可靠）
+                      NEW_VERSION=$(bun -e "
+                      const current = '$CURRENT_VERSION';
+                      const type = '$VERSION_TYPE';
+                      const [major, minor, patch] = current.split('.').map(Number);
+                      
+                      let newMajor = major;
+                      let newMinor = minor;
+                      let newPatch = patch;
+                      
+                      switch (type) {
+                          case 'major':
+                              newMajor = major + 1;
+                              newMinor = 0;
+                              newPatch = 0;
+                              break;
+                          case 'minor':
+                              newMinor = minor + 1;
+                              newPatch = 0;
+                              break;
+                          case 'patch':
+                              newPatch = patch + 1;
+                              break;
+                      }
+                      
+                      console.log(\`\${newMajor}.\${newMinor}.\${newPatch}\`);
+                      ")
+                  fi
+                  
+                  echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+                  echo "New version: $NEW_VERSION"
+
+            - name: Check if version already exists
+              id: check_version
+              run: |
+                  NEW_VERSION="${{ steps.new_version.outputs.version }}"
+                  if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
+                      echo "exists=true" >> $GITHUB_OUTPUT
+                      echo "❌ Version v$NEW_VERSION already exists!"
+                      exit 1
+                  else
+                      echo "exists=false" >> $GITHUB_OUTPUT
+                      echo "✅ Version v$NEW_VERSION is available"
+                  fi
+
+            - name: Create release branch
+              run: |
+                  NEW_VERSION="${{ steps.new_version.outputs.version }}"
+                  BRANCH_NAME="release/v$NEW_VERSION"
+                  git checkout -b "$BRANCH_NAME"
+                  echo "Created branch: $BRANCH_NAME"
+
+            - name: Update version in package.json
+              run: |
+                  NEW_VERSION="${{ steps.new_version.outputs.version }}"
+                  bun -e "
+                  const fs = require('fs');
+                  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                  pkg.version = '$NEW_VERSION';
+                  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 4) + '\n');
+                  "
+                  echo "Updated package.json version to $NEW_VERSION"
+
+            - name: Update CHANGELOG
+              run: |
+                  NEW_VERSION="${{ steps.new_version.outputs.version }}"
+                  CURRENT_DATE=$(date +"%Y-%m-%d")
+                  
+                  # 在 CHANGELOG.md 開頭插入新版本
+                  if [ -f "CHANGELOG.md" ]; then
+                      # 創建新版本條目（使用繁體中文格式）
+                      cat > /tmp/changelog_entry << EOF
+                  
+                  ## [$NEW_VERSION] - $CURRENT_DATE
+                  
+                  ### Added
+                  - 
+                  
+                  ### Changed
+                  - 
+                  
+                  ### Fixed
+                  - 
+                  
+                  EOF
+                      
+                      # 插入到 CHANGELOG.md 開頭（在第一個版本條目之前）
+                      # 找到第一個 "## [" 的位置，在其前面插入
+                      awk -v entry="$(cat /tmp/changelog_entry)" '
+                      /^## \[/ && !inserted {
+                          print entry
+                          inserted = 1
+                      }
+                      { print }
+                      ' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+                  else
+                      # 如果沒有 CHANGELOG.md，創建一個
+                      cat > CHANGELOG.md << EOF
+                  # Changelog
+                  
+                  本專案的所有重要變更都會記錄在此文件中。
+                  
+                  格式基於 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)，
+                  版本號遵循 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
+                  
+                  ## [$NEW_VERSION] - $CURRENT_DATE
+                  
+                  ### Added
+                  - 
+                  
+                  ### Changed
+                  - 
+                  
+                  ### Fixed
+                  - 
+                  
+                  EOF
+                  fi
+                  
+                  echo "Updated CHANGELOG.md"
+
+            - name: Commit changes
+              run: |
+                  NEW_VERSION="${{ steps.new_version.outputs.version }}"
+                  git add package.json CHANGELOG.md
+                  git commit -m "chore: bump version to $NEW_VERSION"
+                  echo "Committed version update"
+
+            - name: Push release branch
+              run: |
+                  BRANCH_NAME="release/v${{ steps.new_version.outputs.version }}"
+                  git push origin "$BRANCH_NAME"
+                  echo "Pushed branch: $BRANCH_NAME"
+
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v6
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: release/v${{ steps.new_version.outputs.version }}
+                  base: master
+                  title: "chore: Release v${{ steps.new_version.outputs.version }}"
+                  body: |
+                      ## 🚀 Release v${{ steps.new_version.outputs.version }}
+                      
+                      ### 變更內容
+                      - 更新版本號至 `${{ steps.new_version.outputs.version }}`
+                      - 更新 CHANGELOG.md
+                      
+                      ### 版本類型
+                      ${{ github.event_name == 'workflow_dispatch' && format('**{0}**', github.event.inputs.version_type) || '**tag**' }}
+                      
+                      ### 檢查清單
+                      - [ ] 確認版本號正確
+                      - [ ] 確認 CHANGELOG.md 已更新
+                      - [ ] 確認所有測試通過
+                      - [ ] 確認建置成功
+                      
+                      ### 下一步
+                      合併此 PR 後，將自動觸發發布流程。
+                      
+                      ---
+                      *此 PR 由 GitHub Actions 自動創建*
+                  labels: |
+                      release
+                      automated
+                  draft: false
+

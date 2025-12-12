@@ -1,6 +1,6 @@
 {
     "name": "@carllee1983/newebpay-logistics",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "藍新金流物流 SDK - 完整的 TypeScript 支援、資料驗證、錯誤處理與 XSS 防護的 NewebPay Logistics API 整合套件",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",

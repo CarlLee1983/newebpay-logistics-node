@@ -5,7 +5,18 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)，
 版本號遵循 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 
-## [1.0.1] - 2025-01-XX
+## [1.0.2] - 2025-12-12
+
+### Changed
+- 完善 package.json 設定（添加 files 欄位、改進 exports 設定）
+- 完善 keywords 欄位，提升 npm 搜尋可見度
+- 完善 description 欄位，包含主要功能特色
+
+### Fixed
+- 修復 TypeScript 編譯錯誤（PrintOrderResponse 型別相容性）
+- 修復 ESLint 配置問題
+
+## [1.0.1] - 2025-12-12
 
 ### Added
 - 新增環境配置支援（`Environment` enum）
